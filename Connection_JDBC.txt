@@ -1,0 +1,64 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class Example {
+    public static void main(String[] args) {
+        // Oracle JDBC connection details
+        String jdbcUrl = "jdbc:oracle:thin:@//localhost:1521/ORCL"; // Adjust as needed
+        String username = "scott";
+        String password = "tiger";
+
+        Connection connection = null;
+
+        try {
+            // Load Oracle JDBC driver
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+
+            // Establish the connection
+            connection = DriverManager.getConnection(jdbcUrl, username, password);
+            System.out.println("Connected to Oracle Database successfully!");
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Execute SQL query to fetch all rows from MANI1
+            String query = "SELECT * FROM MANI1";
+             
+            ResultSet rs = stmt.executeQuery(query);
+
+            // Print table headers
+            System.out.println("RNO\tNAME");
+            System.out.println("----\t----------");
+
+            // Loop through the result set and print each row
+            while (rs.next()) {
+                int rno = rs.getInt("RNO");
+                String name = rs.getString("NAME");
+                System.out.println(rno + "\t" + name);
+            }
+            System.out.flush();
+
+            // Close ResultSet and Statement
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.out.println("JDBC Driver not found: " + e.getMessage());
+        } finally {
+            // Close connection
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                    System.out.println("Connection closed.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error closing connection: " + e.getMessage());
+            }
+        }
+    }
+}

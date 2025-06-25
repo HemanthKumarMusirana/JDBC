@@ -1,0 +1,67 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+public class exp5 {
+    public static void main(String[] args) {
+        String jdbcUrl = "jdbc:oracle:thin:@//localhost:1521/ORCL"; // Adjust if needed
+        String username = "scott";
+        String password = "tiger";
+
+        Scanner scanner = new Scanner(System.in);
+        Connection connection = null;
+
+        try {
+            // Load Oracle JDBC driver
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+
+            // Connect to the DB
+            connection = DriverManager.getConnection(jdbcUrl, username, password);
+            System.out.println("Connected to Oracle Database successfully!");
+
+            // Prepare UPDATE SQL statement
+            String updateSQL = "UPDATE MANI1 SET NAME = ? WHERE RNO = ?";
+            PreparedStatement pstmt = connection.prepareStatement(updateSQL);
+
+            // Get input for RNO and new NAME
+            System.out.print("Enter RNO to update: ");
+            int rnoToUpdate = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            System.out.print("Enter new NAME: ");
+            String newName = scanner.nextLine();
+
+            // Set parameters
+            pstmt.setString(1, newName);
+            pstmt.setInt(2, rnoToUpdate);
+
+            // Execute UPDATE
+            int rowsUpdated = pstmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                System.out.println("Row updated successfully!");
+            } else {
+                System.out.println("No row found with RNO=" + rnoToUpdate);
+            }
+
+            pstmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.out.println("JDBC Driver not found: " + e.getMessage());
+        } finally {
+            scanner.close();
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                    System.out.println("Connection closed.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error closing connection: " + e.getMessage());
+            }
+        }
+    }
+}
